@@ -6,6 +6,7 @@ from tqdm import tqdm
 import math, random
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 import numpy as np
+from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data import Dataset, DataLoader
 from transformers import AdamW
 import warnings
@@ -137,8 +138,8 @@ def load_models():
 		Loading Pre-trained model
 	"""
 	print ('Loading/Downloading GPT-2 Model')
-	tokenizer = GPT2Tokenizer.from_pretrained('gpt2-medium')
-	model = GPT2LMHeadModel.from_pretrained('gpt2-medium')
+	tokenizer = GPT2Tokenizer.from_pretrained('distilgpt2')
+	model = GPT2LMHeadModel.from_pretrained('distilgpt2')
 	return tokenizer, model
 
 
@@ -148,11 +149,11 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Arguments for training Text Augmentation model')
 
 	parser.add_argument('--epoch', default= 2,type=int, action='store', help='Number of epochs to run')
-	parser.add_argument('--model_name', default='bot.pt', type=str, action='store', help='Name of the model file')
+	parser.add_argument('--model_name', default='bot', type=str, action='store', help='Name of the model file')
 	parser.add_argument('--data_file', default='bot.csv', type=str, action='store', help='Name of the data file')
 	parser.add_argument('--batch', type=int, default=32, action='store', help='Batch size')
 	parser.add_argument('--learning_rate', default=3e-5, type=float, action='store', help='Learning rate for the model')
-	parser.add_argument('--max_len', default=200, type=int, action='store', help='Maximum length of sequence')
+	parser.add_argument('--max_len', default=100, type=int, action='store', help='Maximum length of sequence')
 	args = parser.parse_args()
 
 	BATCH_SIZE = args.batch
@@ -177,7 +178,7 @@ if __name__ == '__main__':
 
 	model = MODEL.to(DEVICE)
 	optimizer = AdamW(model.parameters(), lr=LEARNING_RATE)
-	model = fit(model, optimizer, TRAIN_LOADER, VAL_LOADER, EPOCHS, DEVICE):
+	model = fit(model, optimizer, TRAIN_LOADER, VAL_LOADER, EPOCHS, DEVICE)
 	save_model(model, MODEL_NAME)
 
 

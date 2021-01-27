@@ -42,21 +42,18 @@ def top_k_top_p_filtering(logits, top_k=0, top_p=0.0, filter_value=-float('Inf')
 
 
 def load_models(model_name):
-	"""
-	Summary:
-		Loading the trained model
-	"""
-	print ('Loading Trained GPT-2 Model')
-	tokenizer = GPT2Tokenizer.from_pretrained('distilgpt2')
-	model = GPT2LMHeadModel.from_pretrained('distilgpt2')
-	model_path = model_name
-	SPECIAL_TOKENS_DICT = {
+  print ('Loading Trained GPT-2 Model')
+  tokenizer = GPT2Tokenizer.from_pretrained('distilgpt2')
+  model = GPT2LMHeadModel.from_pretrained('distilgpt2')
+  model_path = model_name
+  SPECIAL_TOKENS_DICT = {
     'pad_token': '<pad>',
     'additional_special_tokens': ['<tag>', '<quote>'],
 	}
-	tokenizer.add_special_tokens(SPECIAL_TOKENS_DICT)
-	model.load_state_dict(torch.load(model_path))
-	return tokenizer, model
+  tokenizer.add_special_tokens(SPECIAL_TOKENS_DICT)
+  model.resize_token_embeddings(len(tokenizer))
+  model.load_state_dict(torch.load(model_path))
+  return tokenizer, model
 
 # From HuggingFace, adapted to work with the tag/quote separation:
 def sample_sequence(model, length, context, segments_tokens=None, num_samples=1, temperature=1, top_k=20, top_p=0.8, repetition_penalty=5,
@@ -106,7 +103,7 @@ def generate(model, tokenizer, tag, length, num_samples):
 	model.to(torch.device('cpu'))
 
 	# Generate 10 samples of max length 50
-	generated = sample_sequence(model, length, context=input_ids, segments_tokens=segments, num_samples)
+	generated = sample_sequence(model, length,context=input_ids, num_samples = num_samples, segments_tokens=segments)
 
 	print('\n\n--- Generated Slogans ---\n')
 	for g in generated:
